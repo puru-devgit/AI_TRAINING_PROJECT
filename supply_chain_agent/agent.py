@@ -3,35 +3,55 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDKdjlLu93zmnl8WK7g6FJP206pJALVcLw"
+os.environ["GOOGLE_API_KEY"] = "AIzaSyDEDU7AtXnqXCC5B9vilQPF18am4a96BGA"
 
 prompt = ChatPromptTemplate.from_template("""
-You are a supply chain assistant.
+You are an intelligent supply chain assistant.
 
-If stock of {item} is less than 10:
-Say: "Alert: Reorder required"
+Rules:
+- If stock < forecast → Reorder
+- If risk is high → prioritize ordering more
+- If stock >= forecast → No Reorder
 
-If stock is 10 or more:
-Say: "Stock is sufficient"
-
+Inputs:
+Item: {item}
 Stock: {stock}
-""")
+Forecast: {forecast}
+Risk: {risk}
 
+Give output in this format:
+Decision: <Reorder / No Reorder>
+Reason: <short explanation>
+""")
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 parser = StrOutputParser()
 
 chain = prompt | llm | parser
 
+# TEST CASE 1
 result1 = chain.invoke({
     "item": "rice",
-    "stock": 5
+    "stock": 5,
+    "forecast": 20,
+    "risk": "low"
 })
 print(result1)
 
+# TEST CASE 2
 result2 = chain.invoke({
     "item": "rice",
-    "stock": 20
+    "stock": 30,
+    "forecast": 20,
+    "risk": "low"
 })
 print(result2)
+
+# TEST CASE 3
+result3 = chain.invoke({
+    "item": "rice",
+    "stock": 10,
+    "forecast": 20,
+    "risk": "high"
+})
+print(result3)
