@@ -65,3 +65,6 @@ elif option == "Inventory":
     for item in data:
         st.write(f"{item['Product']}")
         st.progress(item["Stock"] / 100)
+        
+
+    
